@@ -7,19 +7,22 @@ import kotlin.test.assertTrue
 class ExpiredTest {
     @Test fun shouldBeAbleToDetectEndOfLifetime_whenThereIsNoReference() {
         val expired = expiredFactory(Foo())
-        // anti-pattern
-        var count = 100
-        while (expired.alive && count-- > 0) System.gc()
+        gc(100) { expired.alive }
         assertFalse(expired.alive)
     }
 
     @Test fun shouldBeAbleToDetectThatObjectIsAlive_whenThereIsAtLeastOneReachableReference() {
         val obj = Foo()
         val expired = expiredFactory(obj)
-        // anti-pattern
-        var count = 100
-        while (expired.alive && count-- > 0) System.gc()
+        gc(100) { expired.alive }
         assertTrue(expired.alive)
+    }
+}
+
+fun gc(attempts: Int, predicate: () -> Boolean) {
+    var count = 0
+    while (predicate() && count++ < attempts) {
+        System.gc()
     }
 }
 
