@@ -6,10 +6,9 @@ import kotlin.test.assertFalse
 class ExpiredTest {
     @Test fun shouldBeAbleToTrackEndOfLifetime() {
         val expired = expiredFactory(Foo())
-        // anti pattern
+        // anti-pattern
         var count = 100
-        while (expired.alive && count > 100) System.gc()
-
+        while (expired.alive && count-- > 0) System.gc()
         assertFalse(expired.alive)
     }
 }
