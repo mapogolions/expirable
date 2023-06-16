@@ -1,4 +1,4 @@
-package mapogolons.expirable
+package mapogolions.expirable
 
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

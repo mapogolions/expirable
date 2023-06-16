@@ -1,4 +1,4 @@
-package mapogolons.expirable
+package mapogolions.expirable
 
 import java.lang.ref.WeakReference
 

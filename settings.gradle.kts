@@ -12,5 +12,5 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
 }
 
-rootProject.name = "mapogolons.expirable"
+rootProject.name = "mapogolions.expirable"
 include("lib")
