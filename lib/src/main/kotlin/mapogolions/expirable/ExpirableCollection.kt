@@ -15,6 +15,7 @@ class ExpirableCollection<K : Any, T>(
     private val queue: ConcurrentLinkedQueue<Expired<T>> = ConcurrentLinkedQueue()
     private var timer: Timer? = null
     private val lock: Lock = ReentrantLock()
+    private val cleanupLock: Lock = ReentrantLock()
 
     fun getOrPut(key: K, factory: (K) -> T, ttl: Long = defaultTtl): T {
         val expirable = expirables.getOrPut(key) {
@@ -34,17 +35,17 @@ class ExpirableCollection<K : Any, T>(
     private fun callback(item: Expirable<K, T>) {
         expirables.remove(item.key)
         queue.add(Expired(item.value))
-        initCleanupTimer()
+        initCleanupTimer(defaultCleanupInterval)
     }
 
-    private fun initCleanupTimer() {
+    private fun initCleanupTimer(delay: Long) {
         if (timer != null) return
         lock.withLock {
             if (timer != null) {
                 timer = Timer(true)
                 timer!!.schedule(object : TimerTask() {
                     override fun run() = cleanup()
-                }, defaultCleanupInterval, Long.MAX_VALUE)
+                }, delay, Long.MAX_VALUE)
             }
         }
     }
@@ -55,16 +56,24 @@ class ExpirableCollection<K : Any, T>(
     }
 
     private fun cleanup() {
-        var index = 0
-        val count = queue.size
-        while (index < count) {
-            val expired = queue.elementAt(index++)
-            if (expired.alive) continue
-            queue.remove(expired)
-        }
+        // give a chance to other threads as soon as possible
         discardCleanupTimer()
+        if (!cleanupLock.tryLock()) {
+            return
+        }
+        try {
+            var index = 0
+            val count = queue.size
+            while (index < count) {
+                val expired = queue.elementAt(index++)
+                if (expired.alive) continue
+                queue.remove(expired)
+            }
+        } finally {
+            cleanupLock.unlock()
+        }
         if (!queue.isEmpty()) {
-            initCleanupTimer()
+            initCleanupTimer(defaultCleanupInterval)
         }
     }
 }
