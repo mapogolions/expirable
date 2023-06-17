@@ -40,9 +40,9 @@ class ExpirableCollection<K : Any, T>(
         get() = queue.size
 
     private fun callback(expirable: Expirable<K, T>) {
-        hooks?.onExpire(expirable)
         expirables.remove(expirable.key)
         queue.add(Expired(expirable.value))
+        hooks?.onExpire(expirable)
         initCleanupTimer(defaultCleanupInterval)
     }
 
