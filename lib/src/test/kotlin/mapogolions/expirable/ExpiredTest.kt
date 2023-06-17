@@ -19,9 +19,9 @@ class ExpiredTest {
     }
 }
 
-fun gc(attempts: Int, predicate: () -> Boolean) {
+fun gc(hints: Int, predicate: () -> Boolean) {
     var count = 0
-    while (predicate() && count++ < attempts) {
+    while (predicate() && count++ < hints) {
         System.gc()
     }
 }
