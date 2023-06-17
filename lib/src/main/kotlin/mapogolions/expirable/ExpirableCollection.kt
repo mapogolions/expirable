@@ -46,6 +46,9 @@ class ExpirableCollection<K : Any, T>(
     private fun callback(expirable: Expirable<K, T>) {
         hooks?.onExpire(expirable)
         expirables.remove(expirable.key)
+        if (expirable.value is AutoCloseable) {
+            expirable.value.close()
+        }
         queue.add(Expired(expirable.value))
         initCleanupTimer(defaultCleanupInterval)
     }
