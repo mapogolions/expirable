@@ -10,7 +10,7 @@ import kotlin.concurrent.withLock
 class ExpirableCollection<K : Any, T>(
     private val defaultTtl: Long,
     private val defaultCleanupInterval: Long = 10_000
-) : TimerTask() {
+) {
     private val expirables: ConcurrentHashMap<K, Lazy<Expirable<K, T>>> = ConcurrentHashMap()
     private val queue: ConcurrentLinkedQueue<Expired<T>> = ConcurrentLinkedQueue()
     private var timer: Timer? = null
@@ -35,7 +35,9 @@ class ExpirableCollection<K : Any, T>(
         lock.withLock {
             if (timer != null) {
                 timer = Timer()
-                timer!!.schedule(this, defaultCleanupInterval, Long.MAX_VALUE)
+                timer!!.schedule(object : TimerTask() {
+                    override fun run() = cleanup()
+                }, defaultCleanupInterval, Long.MAX_VALUE)
             }
         }
     }
@@ -47,7 +49,7 @@ class ExpirableCollection<K : Any, T>(
         }
     }
 
-    override fun run() {
+    private fun cleanup() {
         var index = 0
         val count = queue.size
         while (index < count) {
