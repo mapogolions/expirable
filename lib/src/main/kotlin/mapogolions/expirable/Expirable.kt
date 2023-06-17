@@ -9,24 +9,18 @@ class Expirable<K, T>(
     val key: K,
     val value: T,
     private val ttl: Long,
-    private val callback: (Expirable<K, T>) -> Unit) : TimerTask() {
+    private val callback: (Expirable<K, T>) -> Unit) {
 
-    private val lock: Lock = ReentrantLock()
     private var timer: Timer? = Timer(true)
-    private var expired: Boolean = false
 
     init {
-        timer!!.schedule(this, ttl, Long.MAX_VALUE)
-    }
-
-    override fun run() {
-        if (expired) return
-        lock.withLock {
-            if (expired) return
-            timer!!.cancel()
-            timer = null
-            expired = true
-        }
-        callback(this)
+        val self = this
+        timer!!.schedule(object : TimerTask() {
+            override fun run() {
+                timer!!.cancel()
+                timer = null
+                callback(self)
+            }
+        }, ttl, Long.MAX_VALUE)
     }
 }
