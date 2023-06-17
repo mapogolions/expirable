@@ -16,10 +16,10 @@ class ExpirableCollection<K : Any, T>(
     private var timer: Timer? = null
     private val lock: Lock = ReentrantLock()
 
-    fun getOrPut(key: K, factory: () -> T, ttl: Long = defaultTtl): T {
+    fun getOrPut(key: K, factory: (K) -> T, ttl: Long = defaultTtl): T {
         val expirable = expirables.getOrPut(key) {
             lazy {
-                Expirable(key, factory(), ttl) { callback(it) }
+                Expirable(key, factory(key), ttl) { callback(it) }
             }
         }.value
         return expirable.value
