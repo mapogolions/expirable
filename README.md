@@ -11,5 +11,4 @@ This pattern is used in the `IHttpClientFactory` on `dotnet` platform that manag
 Suppose you have some object that can be reused across multiple holders. To target this aim, you put that object
 into `ExpirableCollection` and specify how long its lifetime is.
 
-In the example above, `HttpMessageHandler` plays the role of an expensive and reusable object. (to be more precise, it is `HttpClientHandler`)
-So every time the user calls `IHttpClientFactory.CreateClient` with the same key, they get different `HttpClient` instances that reuse the same `HttpClientHandler`.
+In the example above, `HttpMessageHandler` plays the role of an expensive and reusable object. So every time the user calls `IHttpClientFactory.CreateClient` with the same key, they get different `HttpClient` instances that reuse the same `HttpClientHandler` until the last one expires
