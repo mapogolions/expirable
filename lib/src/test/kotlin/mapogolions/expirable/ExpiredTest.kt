@@ -6,13 +6,13 @@ import kotlin.test.assertTrue
 
 class ExpiredTest {
     @Test fun shouldBeAbleToDetectEndOfLifetime_whenThereIsNoReference() {
-        val expired = expiredFactory(Foo())
+        val expired = expiredFactory(Item())
         gc(100) { expired.alive }
         assertFalse(expired.alive)
     }
 
     @Test fun shouldBeAbleToDetectThatObjectIsAlive_whenThereIsAtLeastOneReachableReference() {
-        val obj = Foo()
+        val obj = Item()
         val expired = expiredFactory(obj)
         gc(100) { expired.alive }
         assertTrue(expired.alive)
@@ -27,4 +27,4 @@ fun gc(hints: Int, predicate: () -> Boolean) {
 }
 
 fun <T> expiredFactory(obj: T): Expired<T> = Expired(obj)
-internal class Foo {}
+internal data class Item(val name: String = "")

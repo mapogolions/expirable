@@ -9,8 +9,8 @@ import kotlin.test.assertIs
 class ExpirableTest {
     @Test fun shouldCallCallbackOnlyOnce_whenItemIsExpired() {
         val latch = CountDownLatch(2)
-        Expirable("foo", Foo(), 50) {
-            assertIs<Foo>(it.value)
+        Expirable("foo", Item(), 50) {
+            assertIs<Item>(it.value)
             latch.countDown()
         }
         latch.await(1, TimeUnit.SECONDS)
