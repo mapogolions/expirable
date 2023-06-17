@@ -9,18 +9,28 @@ class Expirable<K, T>(
     val key: K,
     val value: T,
     private val ttl: Long,
-    private val callback: (Expirable<K, T>) -> Unit) {
+    private val callback: (Expirable<K, T>) -> Unit) : AutoCloseable {
 
     private var timer: Timer? = Timer(true)
+    private var disposed: Boolean = false
 
     init {
         val self = this
         timer!!.schedule(object : TimerTask() {
             override fun run() {
-                timer!!.cancel()
-                timer = null
+                close()
                 callback(self)
             }
         }, ttl, Long.MAX_VALUE)
+    }
+
+    override fun close() {
+        if (disposed) return
+        synchronized(this) {
+            if (disposed) return
+            timer!!.cancel()
+            timer = null
+            disposed = true
+        }
     }
 }

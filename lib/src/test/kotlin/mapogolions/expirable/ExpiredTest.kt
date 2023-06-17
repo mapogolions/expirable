@@ -27,4 +27,4 @@ fun gc(hints: Int, predicate: () -> Boolean) {
 }
 
 fun <T> expiredFactory(obj: T): Expired<T> = Expired(obj)
-internal data class Item(val name: String = "")
+internal class Item(val name: String = "")

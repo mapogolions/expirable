@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class ExpirableCollection<K : Any, T>(
     private val defaultTtl: Long,
@@ -15,7 +14,6 @@ class ExpirableCollection<K : Any, T>(
     private val expirables: ConcurrentHashMap<K, Lazy<Expirable<K, T>>> = ConcurrentHashMap()
     private val queue: ConcurrentLinkedQueue<Expired<T>> = ConcurrentLinkedQueue()
     private var timer: Timer? = null
-    private val lock: Lock = ReentrantLock()
     private val cleanupLock: Lock = ReentrantLock()
 
     private var hooks: ExpirableHooks<K, T>? = null
@@ -46,16 +44,13 @@ class ExpirableCollection<K : Any, T>(
     private fun callback(expirable: Expirable<K, T>) {
         hooks?.onExpire(expirable)
         expirables.remove(expirable.key)
-        if (expirable.value is AutoCloseable) {
-            expirable.value.close()
-        }
         queue.add(Expired(expirable.value))
         initCleanupTimer(defaultCleanupInterval)
     }
 
     private fun initCleanupTimer(delay: Long) {
         if (timer != null) return
-        lock.withLock {
+        synchronized(this) {
             if (timer == null) {
                 timer = Timer(true)
                 timer!!.schedule(object : TimerTask() {
