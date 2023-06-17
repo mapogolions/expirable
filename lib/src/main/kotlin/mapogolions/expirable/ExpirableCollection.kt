@@ -8,7 +8,6 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
 class ExpirableCollection<K : Any, T>(
-    private val defaultTtl: Long,
     private val defaultCleanupInterval: Long = 10_000,
 ) {
     private val expirables: ConcurrentHashMap<K, Lazy<Expirable<K, T>>> = ConcurrentHashMap()
@@ -19,14 +18,13 @@ class ExpirableCollection<K : Any, T>(
     private var hooks: ExpirableHooks<K, T>? = null
 
     internal constructor(
-        defaultTtl: Long,
         defaultCleanupInterval: Long,
         hooks: ExpirableHooks<K, T>
-    ) : this(defaultTtl, defaultCleanupInterval) {
+    ) : this(defaultCleanupInterval) {
         this.hooks = hooks
     }
 
-    fun getOrPut(key: K, factory: (K) -> T, ttl: Long = defaultTtl): T {
+    fun getOrPut(key: K, factory: (K) -> T, ttl: Long): T {
         val expirable = expirables.getOrPut(key) {
             lazy {
                 Expirable(key, factory(key), ttl) { callback(it) }

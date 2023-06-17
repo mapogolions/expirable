@@ -7,16 +7,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
 class ExpirableCollectionTest {
-    @Test fun shouldUseDefaultTimeToLive() {
+    @Test fun lifetimeShouldBeEqualToTtl() {
         // arrange
         val latch = CountDownLatch(1)
         val hooks = object : ExpirableHooksImpl<String, Item>() {
             override fun afterCleanup(expirables: ExpirableCollection<String, Item>) = latch.countDown()
         }
-        val items = ExpirableCollection(defaultTtl = 50, defaultCleanupInterval = 500, hooks = hooks)
+        val items = ExpirableCollection(defaultCleanupInterval = 500, hooks = hooks)
 
         // act
-        items.getOrPut("a", { Item(it) })
+        items.getOrPut("a", { Item(it) }, ttl = 50)
         latch.await()
 
         // assert
@@ -29,7 +29,7 @@ class ExpirableCollectionTest {
         val hooks = object : ExpirableHooksImpl<String, Item>() {
             override fun afterCleanup(expirables: ExpirableCollection<String, Item>) = latch.countDown()
         }
-        val items = ExpirableCollection(defaultTtl = 50, defaultCleanupInterval = 500, hooks = hooks)
+        val items = ExpirableCollection(defaultCleanupInterval = 500, hooks = hooks)
         val factory: (String) -> Item = { Item(it) }
         val ttl: Long = 2000
 
