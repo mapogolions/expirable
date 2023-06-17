@@ -15,12 +15,10 @@ class ExpirableCollectionTest {
         val expirables = ExpirableCollection(defaultTtl = 50, defaultCleanupInterval = 500, hooks = hooks)
 
         // act
-        discard(expirables.getOrPut("a", { Item(it) }))
+        expirables.getOrPut("a", { Item(it) })
         latch.await()
 
         // assert
         assertEquals(expirables.size, 0)
     }
 }
-
-fun <T> discard(arg: T) = Unit
