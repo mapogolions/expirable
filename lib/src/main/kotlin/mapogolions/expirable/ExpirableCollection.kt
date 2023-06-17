@@ -25,6 +25,12 @@ class ExpirableCollection<K : Any, T>(
         return expirable.value
     }
 
+    val size: Int
+        get() = expirables.size
+
+    val expiredItemsCount: Int
+        get() = queue.size
+
     private fun callback(item: Expirable<K, T>) {
         expirables.remove(item.key)
         queue.add(Expired(item.value))
@@ -32,6 +38,7 @@ class ExpirableCollection<K : Any, T>(
     }
 
     private fun initCleanupTimer() {
+        if (timer != null) return
         lock.withLock {
             if (timer != null) {
                 timer = Timer()
@@ -43,10 +50,8 @@ class ExpirableCollection<K : Any, T>(
     }
 
     private fun discardCleanupTimer() {
-        lock.withLock {
-            timer!!.cancel()
-            timer = null
-        }
+        timer!!.cancel()
+        timer = null
     }
 
     private fun cleanup() {
