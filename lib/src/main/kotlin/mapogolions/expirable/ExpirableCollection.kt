@@ -41,7 +41,7 @@ class ExpirableCollection<K : Any, T>(
         if (timer != null) return
         lock.withLock {
             if (timer != null) {
-                timer = Timer()
+                timer = Timer(true)
                 timer!!.schedule(object : TimerTask() {
                     override fun run() = cleanup()
                 }, defaultCleanupInterval, Long.MAX_VALUE)
