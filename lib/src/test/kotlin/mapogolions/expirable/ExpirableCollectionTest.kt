@@ -66,7 +66,7 @@ class ExpirableCollectionTest {
                 latch.countDown()
             }
         }
-        val items = ExpirableCollection(defaultCleanupInterval = 100, hooks = hooks)
+        val items = ExpirableCollection(defaultCleanupInterval = 500, hooks = hooks)
 
         // act
         items.getOrPut("foo", ::itemFactory, ttl = 20)
