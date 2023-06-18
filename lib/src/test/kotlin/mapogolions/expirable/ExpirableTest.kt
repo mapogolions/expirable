@@ -1,5 +1,6 @@
 package mapogolions.expirable
 
+import mapogolions.expirable.internal.Item
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test

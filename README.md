@@ -3,6 +3,7 @@
 Package contains some abstractions to manage object lifetime.
 
 ```sh
+gradle build
 gradle test
 ```
 

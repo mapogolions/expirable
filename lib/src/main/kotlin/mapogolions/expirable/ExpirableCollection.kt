@@ -36,7 +36,7 @@ class ExpirableCollection<K : Any, T>(
     val size: Int
         get() = expirables.size
 
-    val expiredItemsCount: Int
+    val cleanupQueueSize: Int
         get() = queue.size
 
     private fun callback(expirable: Expirable<K, T>) {

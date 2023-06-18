@@ -1,6 +1,9 @@
 package mapogolions.expirable
 
 import mapogolions.expirable.internal.ExpirableHooksImpl
+import mapogolions.expirable.internal.Item
+import mapogolions.expirable.internal.gc
+import mapogolions.expirable.internal.itemFactory
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +20,7 @@ class ExpirableCollectionTest {
         val items = ExpirableCollection(defaultCleanupInterval = 500, hooks = hooks)
 
         // act
-        items.getOrPut("a", { Item(it) }, ttl = 50)
+        items.getOrPut("a", ::itemFactory, ttl = 50)
         latch.await()
 
         // assert
@@ -27,11 +30,10 @@ class ExpirableCollectionTest {
     @Test fun getOrPut_shouldReturnTheSameObject_whenObjectIsNotExpired() {
         // arrange
         val items = ExpirableCollection<String, Item>(defaultCleanupInterval = 100)
-        val factory: (String) -> Item = { Item(it) }
 
         // act
-        val a = items.getOrPut("foo", factory, ttl = 2000)
-        val b = items.getOrPut("foo", factory, ttl = 2000)
+        val a = items.getOrPut("foo", ::itemFactory, ttl = 2000)
+        val b = items.getOrPut("foo", ::itemFactory, ttl = 2000)
 
         // assert
         assertSame(a, b)
@@ -44,12 +46,11 @@ class ExpirableCollectionTest {
             override fun onExpire(expirable: Expirable<String, Item>) = latch.countDown()
         }
         val items = ExpirableCollection(defaultCleanupInterval = 100, hooks = hooks)
-        val factory: (String) -> Item = { Item(it) }
 
         // act
-        val a = items.getOrPut("foo", factory, ttl = 20)
+        val a = items.getOrPut("foo", ::itemFactory, ttl = 20)
         latch.await()
-        val b = items.getOrPut("foo", factory, ttl = 20)
+        val b = items.getOrPut("foo", ::itemFactory, ttl = 20)
 
         // assert
         assertNotSame(a, b)
@@ -67,11 +68,12 @@ class ExpirableCollectionTest {
         val items = ExpirableCollection(defaultCleanupInterval = 100, hooks = hooks)
 
         // act
-        items.getOrPut("foo", { Item(it) }, ttl = 20)
-        items.getOrPut("bar", { Item(it) }, ttl = 40)
+        items.getOrPut("foo", ::itemFactory, ttl = 20)
+        items.getOrPut("bar", ::itemFactory, ttl = 40)
         latch.await()
 
         // assert
-        assertEquals(items.expiredItemsCount, 0)
+        assertEquals(items.size, 0)
+        assertEquals(items.cleanupQueueSize, 0)
     }
 }

@@ -1,5 +1,8 @@
 package mapogolions.expirable
 
+import mapogolions.expirable.internal.Item
+import mapogolions.expirable.internal.expiredFactory
+import mapogolions.expirable.internal.gc
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -18,13 +21,3 @@ class ExpiredTest {
         assertTrue(expired.alive)
     }
 }
-
-fun gc(hints: Int, predicate: () -> Boolean) {
-    var count = 0
-    while (predicate() && count++ < hints) {
-        System.gc()
-    }
-}
-
-fun <T> expiredFactory(obj: T): Expired<T> = Expired(obj)
-internal class Item(val name: String = "")
