@@ -40,7 +40,7 @@ class ExpirableCollectionTest {
         assertSame(a, b)
     }
 
-    @Test fun getOrPut_shouldReturnDifferentObject_whenObjectIsExpired() {
+    @Test fun getOrPut_shouldConstructAndReturnNewObject_whenObjectIsExpired() {
         // arrange
         val latch = CountDownLatch(1)
         val hooks = object : ExpirableHooksImpl<String, Item>() {
@@ -57,7 +57,7 @@ class ExpirableCollectionTest {
         assertNotSame(a, b)
     }
 
-    @Test fun shouldCleanupQueueOfExpiredObjects() {
+    @Test fun shouldRemoveObjectFromCleanupQueue_whenThereIsNoReachableReference() {
         // arrange
         val latch = CountDownLatch(2)
         val hooks = object : ExpirableHooksImpl<String, Item>() {
