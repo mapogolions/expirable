@@ -1,11 +1,11 @@
 package mapogolions.expirable
 
+import mapogolions.expirable.internal.*
 import mapogolions.expirable.internal.ExpirableHooksImpl
 import mapogolions.expirable.internal.Item
-import mapogolions.expirable.internal.gc
+import mapogolions.expirable.internal.bruteForceGc
 import mapogolions.expirable.internal.itemFactory
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -62,7 +62,7 @@ class ExpirableCollectionTest {
         val latch = CountDownLatch(2)
         val hooks = object : ExpirableHooksImpl<String, Item>() {
             override fun onDequeue(expired: Expired<Item>) {
-                gc(hints = 200) { expired.alive }
+                bruteForceGc { expired.alive }
                 latch.countDown()
             }
         }

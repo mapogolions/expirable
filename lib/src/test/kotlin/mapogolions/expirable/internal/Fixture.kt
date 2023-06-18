@@ -2,8 +2,14 @@ package mapogolions.expirable.internal
 
 import mapogolions.expirable.Expired
 
-internal fun gc(hints: Int, predicate: () -> Boolean) {
-    var count = 0
+internal fun bruteForceGc(predicate: () -> Boolean) {
+    while (predicate()) {
+        System.gc()
+    }
+}
+
+internal fun gc(hints: Long, predicate: () -> Boolean) {
+    var count: Long = 0
     while (predicate() && count++ < hints) {
         System.gc()
     }
