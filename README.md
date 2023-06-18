@@ -1,6 +1,6 @@
 ### Expirable
 
-The package contains some abstractions to manage objects lifetime. These abstractions are the result of generalization of some ideas borrowed from the implementation of `IHttpClinetFactory` on the `dotnet` platform.
+The package contains some abstractions that help you create and reuse expensive objects across multiple holders. These abstractions are the result of generalization of some ideas borrowed from the implementation of `IHttpClinetFactory` on the `dotnet` platform.
 
 ```sh
 gradle build
