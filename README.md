@@ -1,10 +1,23 @@
 ### Expirable
 
-Package contains some abstractions to manage object lifetime.
+The package contains some abstractions to manage objects lifetime. These abstractions are the result of generalization of some ideas borrowed from the implementation of `IHttpClinetFactory` on the `dotnet` platform.
 
 ```sh
 gradle build
 gradle test
 ```
 
-This pattern is used in the `IHttpClientFactory` on `dotnet` platform that manages instantiation of `HttpClient` objects. Every time the user calls `IHttpClientFactory.CreateClient` with the same key, they get different `HttpClient` instances that reuse the same `HttpMessageHandler` until the last one expires
+### How to use
+
+The package exposes the following entities
+
+#### Expirable
+
+Represents an expirable object. There are two ways to cause expiration of an object:
+1) pass `ttl` argument and wait for expiration by timer (`TimerTask`)
+2) use `try with resources`
+
+
+#### ExpirableCollection
+
+The main abstraction of the package. This collection manages lifetime of objects. It returns the same object for the same key until the object expires. Users are free to use the object returned from the `ExpirableCollection` for as long as they need, regardless of whether it expires. 
