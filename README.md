@@ -14,7 +14,7 @@ The package exposes the following entities
 #### Expirable
 
 Represents an expirable object. There are two ways to cause expiration of an object:
-1) pass `ttl` argument and wait for expiration by timer (`TimerTask`)
+1) pass `ttl` argument and wait for expiration by timer
 2) use `try with resources`
 
 
