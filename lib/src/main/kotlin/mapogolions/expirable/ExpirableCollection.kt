@@ -71,10 +71,9 @@ class ExpirableCollection<K : Any, T>(
             return
         }
         try {
-            var index = 0
-            val count = queue.size
-            while (index < count) {
-                val expired = queue.elementAt(index++)
+            var count = queue.size
+            while (count++ > 0) {
+                val expired = queue.peek()
                 hooks?.onDequeue(expired)
                 if (expired.alive) continue
                 queue.remove(expired)
