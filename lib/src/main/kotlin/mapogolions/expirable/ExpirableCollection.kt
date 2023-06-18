@@ -4,12 +4,15 @@ import mapogolions.expirable.internal.ExpirableHooks
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
 class ExpirableCollection<K : Any, T>(
-    private val defaultCleanupInterval: Long = 10_000,
+    defaultCleanupInterval: Long = 10_000,
+    timeUnit: TimeUnit = TimeUnit.MILLISECONDS
 ) {
+    private val defaultCleanupInterval: Long = timeUnit.toMillis(defaultCleanupInterval)
     private val expirables: ConcurrentHashMap<K, Lazy<Expirable<K, T>>> = ConcurrentHashMap()
     private val queue: ConcurrentLinkedQueue<Expired<T>> = ConcurrentLinkedQueue()
     private var timer: Timer? = null
@@ -18,16 +21,17 @@ class ExpirableCollection<K : Any, T>(
     private var hooks: ExpirableHooks<K, T>? = null
 
     internal constructor(
-        defaultCleanupInterval: Long,
+        defaultCleanupInterval: Long = 10_000,
+        timeUnit: TimeUnit = TimeUnit.MILLISECONDS,
         hooks: ExpirableHooks<K, T>
     ) : this(defaultCleanupInterval) {
         this.hooks = hooks
     }
 
-    fun getOrPut(key: K, factory: (K) -> T, ttl: Long): T {
+    fun getOrPut(key: K, factory: (K) -> T, ttl: Long, timeUnit: TimeUnit = TimeUnit.MILLISECONDS): T {
         val expirable = expirables.getOrPut(key) {
             lazy {
-                Expirable(key, factory(key), ttl) { callback(it) }
+                Expirable(key, factory(key), timeUnit.toMillis(ttl)) { callback(it) }
             }
         }.value
         return expirable.value
@@ -72,11 +76,10 @@ class ExpirableCollection<K : Any, T>(
         }
         try {
             var count = queue.size
-            while (count++ > 0) {
-                val expired = queue.peek()
+            while (count-- > 0) {
+                val expired = queue.poll()
                 hooks?.onDequeue(expired)
-                if (expired.alive) continue
-                queue.remove(expired)
+                if (expired.alive) queue.add(expired)
             }
         } finally {
             cleanupLock.unlock()
