@@ -19,6 +19,7 @@ class Expirable<K, T>(
         timer!!.schedule(object : TimerTask() {
             override fun run() {
                 close()
+                // prevent callback execution under the lock
                 callback(self)
             }
         }, ttl, Long.MAX_VALUE)

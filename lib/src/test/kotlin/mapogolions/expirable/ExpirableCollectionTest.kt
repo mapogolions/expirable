@@ -25,7 +25,7 @@ class ExpirableCollectionTest {
         latch.await()
 
         // assert
-        assertEquals(items.size, 0)
+        assertEquals(0, items.size)
     }
 
     @Test fun getOrPut_shouldReturnTheSameObject_whenObjectIsNotExpired() {
@@ -74,8 +74,8 @@ class ExpirableCollectionTest {
         latch.await()
 
         // assert
-        assertEquals(items.size, 0)
-        assertEquals(items.cleanupQueueSize, 0)
+        assertEquals(0, items.size)
+        assertEquals(0, items.cleanupQueueSize)
     }
 
     @Test fun shouldBeAbleToUseObjectAfterExpiration_whenThereIsAtLeastOneReachableReference() {
@@ -94,8 +94,8 @@ class ExpirableCollectionTest {
         latch.await()
 
         // assert
-        assertEquals(items.size, 0)
-        assertEquals(items.cleanupQueueSize, 1)
-        assertEquals(foo.name, "foo")
+        assertEquals(0, items.size,)
+        assertEquals(1, items.cleanupQueueSize)
+        assertEquals("foo", foo.name)
     }
 }

@@ -24,7 +24,7 @@ class ExpirableCollection<K : Any, T>(
         defaultCleanupInterval: Long = 10_000,
         timeUnit: TimeUnit = TimeUnit.MILLISECONDS,
         hooks: ExpirableHooks<K, T>
-    ) : this(defaultCleanupInterval) {
+    ) : this(defaultCleanupInterval, timeUnit) {
         this.hooks = hooks
     }
 

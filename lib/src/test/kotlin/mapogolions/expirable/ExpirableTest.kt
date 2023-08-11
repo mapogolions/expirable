@@ -11,9 +11,10 @@ class ExpirableTest {
         val latch = CountDownLatch(1)
         Expirable("foo", Item(), 50) {
             assertIs<Item>(it.value)
+            assertEquals("foo", it.key)
             latch.countDown()
         }
         latch.await()
-        assertEquals(latch.count, 0)
+        assertEquals(0, latch.count)
     }
 }
